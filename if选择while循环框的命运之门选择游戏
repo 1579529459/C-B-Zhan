@@ -12,7 +12,7 @@ int main()
 
 		scanf("%c", &input);
 		getchar();       ////////消除 系统 将 scanf： X   enter 这个回车当第二次输入 input的BUG！！！！ getchar（）把这个enter吞掉了 百度搜：
-		if (input == 'A')                                                                             C语言中用scanf连续输入两个字符类型 空格or回车被吞掉问题
+		if (input == 'A')  //// char型单字符！用==判断时 得用‘’单引引起来 不能双引 ！！           C语言中用scanf连续输入两个字符类型 空格or回车被吞掉问题
 		{
 			printf("我将欢迎你的到来！！\n");
 			i = 0;
