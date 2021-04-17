@@ -1,0 +1,53 @@
+#include<stdio.h>
+
+void Mao(int arr[],int sz)
+{
+	int i,j,x;
+	for (i = 0; i<sz - 1; i++)
+	{
+		x = 1;
+		for (j = 0; j < sz - 1 - i; j++)
+		{
+			int tem;
+			if (arr[j] < arr[j + 1])
+			{
+				tem = arr[j+1];
+				arr[j + 1] = arr[j];
+				arr[j] = tem;
+				x = 0;
+			}
+
+		}
+	
+		if (x == 1)
+		{
+
+			break;
+		}
+
+	}
+
+
+
+}
+
+int main()
+{
+	int i;
+	int sz;
+	int arr[] = { 5,6,5,4,3,2,9,8,3,4,5,6 };
+
+	sz = sizeof(arr) / sizeof(arr[0]);
+
+	Mao(arr,sz);
+	
+
+	for (i = 0; i < sz; i++)
+
+	{
+		printf("%d ", arr[i]);
+	}
+
+
+	return 0;
+}
