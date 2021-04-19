@@ -1,0 +1,297 @@
+******************************************game.h*****************************************************
+
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+
+#define ROW 3
+#define COL 3
+
+void InitBoard(char board[ROW][COL], int row, int col);
+
+void DisplayBoard(char board[ROW][COL], int row, int col);
+
+void PlayerMove(char board[ROW][COL], int row, int col);
+void ComMove(char board[ROW][COL], int row, int col);
+char Iswin(char board[ROW][COL], int row, int col);
+
+
+
+
+
+
+
+
+
+******************************************text.c*****************************************************
+
+#define _CRT_SECURE_NO_WARNINGS 1
+#include"game.h"
+
+
+void menu()
+{
+	printf("==================================\n");
+	printf("=========1.play       0.exit======\n");
+	printf("==================================\n");
+
+}
+
+
+void game()
+{
+	char ret = '0';
+	
+	char board[ROW][COL] = {0};
+	
+    /* 初始化棋盘 清空之前数组里的东西 */               
+	InitBoard(board, ROW, COL);
+	/* 展示打印棋盘 */
+	DisplayBoard(board, ROW, COL);          /*   ? | ? | ?     
+											    ---|---|---
+												 ? | ? | ?
+												---|---|---
+											     ? | ? | ?
+											*/
+	while (1)
+	{
+		/*玩家下棋*/
+		PlayerMove(board, ROW, COL);
+		/*显示当前棋盘*/
+		DisplayBoard(board, ROW, COL);
+
+		ret=Iswin(board, ROW, COL);/*判断*/
+		if (ret != 'C')
+			break;
+
+
+		/*电脑下棋*/
+		ComMove(board, ROW, COL);
+		/*显示当前棋盘*/
+		DisplayBoard(board, ROW, COL);
+
+		ret=Iswin(board,ROW,COL);/*判断*/
+		if (ret != 'C')
+			break;
+	}
+				
+	if (ret == '*')
+	{
+		printf("玩家赢!\n");
+	}
+	else if (ret == '#')
+		printf("电脑赢!\n");
+	else if (ret == 'Q')
+		printf("平局!\n");
+
+
+	/*判断情况--》1玩家应  2电脑赢  3满了平局  4没满没赢继续下 */
+
+
+
+
+}
+
+
+
+
+void test()
+{
+	srand((unsigned int)time(NULL));
+	int input;
+	do
+	{
+		menu();
+		printf("请选择:>");
+		scanf("%d", &input);
+	
+		switch (input)
+		{
+		case 1:
+			printf("三子棋游戏开始！\n");
+			game();
+
+			break;
+		case 0:
+			printf("退出游戏\n");
+			break;
+		default:
+			printf("输入有误，请重新输入\n");
+			break;
+
+		}
+
+	} while (input);
+
+}
+
+int main()
+
+{
+	
+
+	test();
+	
+	return 0;
+
+}
+
+******************************************game.c*****************************************************
+#define _CRT_SECURE_NO_WARNINGS 1
+#include"game.h"
+void InitBoard(char board[ROW][COL],int row,int col)
+{
+	int i, j;
+
+	for (i = 0; i < row;i++)
+	{
+		for (j = 0; j < col; j++)
+		{
+			board[i][j] = ' ';
+			
+		}
+	}
+}
+
+
+void DisplayBoard(char board[ROW][COL], int row, int col)
+{
+	int i, j;
+	for (i = 0; i < row; i++)
+	{
+		for (j = 0; j < col; j++)
+		{
+			printf(" %c ", board[i][j]);
+			if (j < col - 1)
+
+			{
+				printf("|");	
+			}	
+		}
+		printf("\n");
+
+		if (i < row - 1)
+		{
+			for (j = 0; j < col ; j++)
+			{
+				printf("---");
+				if(j<col-1)
+				{
+					printf("|");
+				}
+				
+			}
+			printf("\n");
+		}
+		
+		
+		
+	}
+	
+}
+
+void PlayerMove(char board[ROW][COL], int row, int col)
+{
+	int x = 0;
+	int y = 0;
+	printf("玩家走>\n");
+	printf("请输入要下的坐标,中间用空格隔开:>");
+	
+	/*判断输入坐标的合法性*/
+	while (1)
+	{
+		scanf("%d %d", &x, &y);
+
+		if (x >= 1 && x <= ROW && y >= 1 && y <= COL)
+		{	/*看看要下棋的地方是不是空的*/
+			if (board[x - 1][y - 1] == ' ')
+			{
+				board[x - 1][y - 1] = '*';
+				break;
+			}
+			else
+			{
+				printf("该坐标已被占用!\n");
+			}
+			
+
+		}
+		else
+		{
+			printf("非法坐标，请重新输入!\n");
+		}
+	}
+
+}
+
+
+void ComMove(char board[ROW][COL], int row, int col)
+{
+	printf("电脑走>\n");
+	int x = 0;
+	int y = 0;
+	while (1)
+	{	/*通过设置 使得电脑坐标不会非法！*/
+		x = rand() % (ROW);
+		y = rand() % (COL);
+		/*看看要下棋的地方是不是空的*/
+		if (board[x][y] == ' ')
+		{
+			board[x][y] = '#';
+			break;
+		}
+		
+	
+	}
+
+
+
+}
+
+char Iswin(char board[ROW][COL], int row, int col)
+
+{
+	int x, y;
+	while (1)
+	{
+		for (x = 0; x < ROW; x++)/*行 3 个相 等*/
+		{
+			if (board[x][0] == board[x][1] && board[x][1] == board[x][2] && board[x][1] != ' ')
+			{
+				return board[x][0]; /*  此处返回人对应棋子*或计算机对应棋子#来判断胜负   */
+			}
+		}
+		for (y = 0; y < COL; y++) /*列 3 个相 等*/
+		{
+			if (board[0][y] == board[1][y] && board[1][y] == board[2][y]&& board[1][y] != ' ')
+			{
+				return board[0][y];
+			}
+
+		} 
+		if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[1][1]!= ' ')
+		{
+			return board[0][0];      /*两条对角线三个相等*/
+		}
+		if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[1][1]  != ' ')
+		{
+			return board[0][2];
+		}
+		for (x = 0; x < ROW; x++)
+		{
+			for (y = 0; y < COL; y++)
+			{
+				if (board[x][y]==' ')
+					return 'C';
+			}
+		}
+		return 'Q';
+	}
+
+		
+
+}
+
+
