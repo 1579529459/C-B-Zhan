@@ -1,0 +1,270 @@
+======================================test.c=====================================================================================
+#include"game.h"
+
+
+void menu()
+{
+	printf("==================================\n");
+	printf("=========1.play       0.exit======\n");
+	printf("==================================\n");
+
+}
+
+void game()
+
+{
+	int nandu;
+	char mine[ROWS][COLS] = { 0 };
+	//排出雷的信息
+	char show[ROWS][COLS] = { 0 };
+	//初始化
+	//InitBoard(mine,ROWS,COLS,'0');
+	
+	nandu=Nandu();
+
+	InitBoard(mine, ROWS, COLS,'0');
+	InitBoard(show, ROWS, COLS, '*');
+	
+	//打印一下棋盘
+	//DisplayBoard(mine, ROW, COL);
+	DisplayBoard(show, ROW, COL);
+
+	//布置雷
+	SetMine(mine,ROW,COL,nandu);
+	DisplayBoard(mine, ROW, COL);
+	//扫雷
+
+	FindMine(mine,show,ROW,COL,nandu);
+	
+
+}
+
+
+void test()
+{
+	int input;
+	
+	srand((unsigned int)time(NULL));
+	
+	do{
+		
+		menu();
+ 		printf("请选择>: ");
+		scanf("%d", &input);
+		
+		switch (input)
+		{
+			case 1:
+				printf("扫雷游戏开始！\n");
+				game();
+				break;
+			case 0:
+				printf("退出游戏!\n");
+				break;
+			default:
+				printf("输入有误，重新输入!\n");
+				break;
+			
+
+
+		}
+		
+
+
+
+
+	} while (input);
+
+
+}
+
+int main()
+
+{
+	test();
+	return 0;
+
+}
+
+
+
+
+
+
+
+======================================game.c=====================================================================================
+
+#include"game.h"
+
+void InitBoard(char board[ROWS][COLS],int rows,int cols,char set)
+
+{
+	int i = 0;
+	int j = 0;
+	for (i = 0; i < rows; i++)
+	{
+		for (j = 0; j < cols; j++)
+		{
+			board[i][j] = set;
+		}
+	}
+
+}
+
+int Nandu()
+
+{
+	int nandu;
+
+	printf("选择难度》：");
+	while (1)
+	{
+			
+		scanf("%d", &nandu);
+		if (nandu == 2 || nandu == 1)
+		{
+			break;
+	
+		}
+		else 
+		{
+			printf("非法,重选》：");
+		}
+			
+	
+	}
+	if (nandu == 1)
+		nandu = 10;
+	else
+		nandu = 30;
+	return nandu;
+
+}
+
+void DisplayBoard(char board[ROWS][COLS], int row, int col)
+{
+	int i;
+	int j;
+	//打印列号
+	//printf("0 ");
+	for (i = 0; i <= col; i++)
+	{
+		printf("%d ", i);
+	}
+	printf("\n");
+
+
+	for (i = 1; i <= row; i++)
+	{	//的打印行号
+		printf("%d ", i);
+		for (j = 1; j <= col; j++)
+		{
+			printf("%c ", board[i][j]);
+		}
+		printf("\n");
+	}
+
+}
+
+void SetMine(char board[ROWS][COLS], int row, int col,int nandu)
+{
+	int count = nandu;
+	while (count)
+	{
+		
+		int y = rand() % col + 1;  //1 - 9;
+		int x = rand() % row + 1;  //1 - 9;
+		if (board[x][y] == '0')
+		{
+			board[x][y] ='1';
+			count--;
+		}
+		
+	}
+}
+
+
+
+void FindMine(char mine[ROWS][COLS], char show[ROWS][COLS], int row, int col,int nandu)
+{
+	
+	int x = 0;
+	int y = 0;
+	int win = 0;
+	while (win<row*col-nandu)
+
+	{
+		printf("输入排雷的坐标:>");
+		scanf("%d%d", &x, &y);
+		if (x >= 1 && x <= row && y >= 1 && y <= col)
+		{	//坐标合法
+			if (mine[x][y] == '1')
+				//1.踩雷！
+			{
+				printf("很遗憾,你被炸死了！\n");
+				DisplayBoard(mine, row, col);
+				break;
+
+			}
+			else
+				//2.不是雷  算x y坐标周围雷的个数！
+			{
+				int count = get_mine_count(mine, x, y);
+
+				show[x][y-1] = count+'0';
+				DisplayBoard(show, row, col);
+				win++;
+			}
+			
+
+			
+		}
+		else
+		{
+			printf("坐标非法，重新输入！");
+		}
+	}
+	if (win == row * col - nandu)
+	{
+		printf("恭喜你排雷成功！\n");
+	}
+}
+
+
+int get_mine_count(char mine[ROWS][COLS], int x, int y)
+{
+	return  mine[x - 1][y - 1] +
+		mine[x - 1][y] +
+		mine[x - 1][y + 1] +
+		mine[x][y - 1] +
+		mine[x][y + 1] +
+		mine[x + 1][y - 1] +
+		mine[x + 1][y] +
+		mine[x + 1][y + 1] - 8 * '0';
+
+
+	   
+}
+====================================game.h=====================================================================================
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+
+#define ROW 9
+#define COL 9
+#define ROWS 12
+#define COLS 12
+
+//#define HARD_COUNT 20
+
+
+
+void InitBoard(char board[ROWS][COLS], int rows, int cols, char set);
+
+void DisplayBoard(char board[ROWS][COLS], int row, int col);
+
+void SetMine(char board[ROWS][COLS], int row, int col,int nandu);
+
+void FindMine(char mine[ROWS][COLS], char show[ROWS][COLS], int row,int col,int nandu);
+int get_mine_count(char mine[ROWS][COLS],int x,int y);
+int Nandu();
+
