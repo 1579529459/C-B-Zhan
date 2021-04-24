@@ -1,0 +1,32 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+
+
+double Sum(int n,int k)
+{	////特殊情况 次方<0 则用 k>0算出 分母  再   return  1.0/分母即可 **********，巧妙
+	if (k < 0)
+	{
+		return (1.0 / (Sum(n, -k)));
+	}
+
+	// 核心 k>=0部分  k=0 直接return 1 （特殊情况）
+
+	else if (k == 0)
+		  return 1;
+
+	else
+	    return n * Sum(n, k - 1); 
+	
+}
+
+
+
+int main()
+{
+	int k;
+	int n;
+	scanf("%d%d", &n,&k);
+	double ret=Sum(n,k);
+	printf("%f\n", ret);
+
+}
