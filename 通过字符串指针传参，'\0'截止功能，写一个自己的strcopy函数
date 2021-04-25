@@ -1,0 +1,30 @@
+void mystrcpy(char* de, char* src)
+{	
+
+	while (*src!='\0')
+	{
+		*de = *src;
+		de++;
+
+		src++;
+	}
+	*de = *src;
+	
+
+
+
+
+}
+
+int main()
+
+
+{
+	char arr1[] = "++++++";
+	char arr2[] = "bit";
+	int sz = sizeof(arr2)/sizeof(arr2[0]);
+	mystrcpy(arr1,arr2);
+	printf("%s\n",arr1);
+	
+	return 0;
+}
