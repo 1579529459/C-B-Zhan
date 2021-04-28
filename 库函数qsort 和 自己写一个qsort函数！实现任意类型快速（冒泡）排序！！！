@@ -1,0 +1,189 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+==================================定义一个结构体===================================
+typedef struct Stu 
+
+{
+	char name[4];
+	int age;
+
+}Stu;
+====================================================================================
+
+==============================调用规则函数 设定部分  逻辑:return > 0 则交换比较的那一对  return==0则不交换 return < 0 则不交换()升序降序的切换至需要改变一下a  b减号两边的位置=======================================
+
+int Cmp_Stu_name(const void *a,const void *b)
+{
+	return strcmp(((Stu*)a)->name,((Stu*)b)->name);
+
+}
+//这两个情况最复杂！！    
+//用结 构体中的name（str）来对结构体数组中的元素排序
+int Cmp_Stu_age(const void* a, const void* b)
+{
+	//return *(int*)a - *(int*)b;
+	return ((Stu*)a)->age - ((Stu*)b)->age;
+
+
+}
+//用结构体中的age（int）来对结构体数组中的元素排序
+===============================================================================
+
+
+int main()
+{
+	int i = 0;
+	
+	Stu s[3] = { {"wtl",20},{"xs",3},{"x",15} };
+  ==================================创建一个结构体数组 s ===================================
+	
+	int sz = sizeof(s) /sizeof(s[0]);
+
+	for (i = 0; i < sz; i++)
+	{
+		printf("%s-%d ", (&s[i])->name, (&s[i])->age);
+		
+	}
+	printf("\n");
+======================================================================================
+	qsort(s, sz, sizeof(s[0]), Cmp_Stu_age);
+s其中第一个参数s是一个地址，即参与排序的首地址；
+sz是需要排序的数量；
+sizeof(s[0])  简称宽度  则是每一个元素占用的空间大小；
+Cmp....??是指向函数的指针，该函数由你自己设定规则，用于确定排序的方法（即排序的种类  int[]排or char[]排 or 结构体数组[]排）。
+（cmp..简称调用函数！）
+        
+  ====================库函数qsort 的调用部分=======================================
+
+	for (i = 0; i < sz; i++)
+	{
+		printf("%s-%d ",(&s[i])->name, (&s[i])->age);
+		
+	}
+	printf("\n");
+	
+	return 0;
+}
+
+================================================================================================================
+以下部分为  通过自己语言 实现库函数qsort   （造个快排 bubble——sort（）函数）
+=================================================================================================================
+
+
+
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include <string.h>
+
+void Swap(char* num1,char* num2,int width)    //默认元素i>元素i+1 需要交换 则调用Swap width范围恰好保证“元素i  元素i+1刚好整体交换”
+{
+	int i;
+	for (i = 0; i < width; i++)
+	{
+		char tmp;//char tmp;？？    //  !此处char tem临时变量是char 因为char刚好一个字节   而该算法也是以1字节单位为单位交换的！eg(int width=4 一个一个字节换 地址++ 换4伦)
+		tmp = *num1;                          （不是一开始想的 char* 噢  这玩意8字节的！）
+		*num1= *num2;         //编写是此处*使我困惑 解决！！！！！：你得通过一个地址  再*（解引用地址）一下 找到数组中特定的位置的值才能换啊，不然 地址之间乱指 原数组顺序的值还是不变呀！！
+		*num2 = tmp;
+		num1++;                                                                                *地址！=》解引用=》交换原来的值！
+		num2++;
+	}
+
+}
+
+void bubble_sort(void* base,int sz,int width,int(*cmp)(void* a,void* b))
+//base 所排数组首地址指针      sz 长度 sz-1为排几趟   ！！width 为该数组中元素类型对应字节数！！后面从第1，2比完 转3，4比需要用它往后卡！
+//cmp  回调函数指针
+{
+	int i,j;
+	for (i = 0; i < sz; i++)
+	{
+		for (j = 0; j < sz - 1 - i; j++)
+		{
+			char* num1 = (char*)base + j * width; 
+			char* num2 = (char*)base + (j + 1) * width;//此处char*的强制转换 和 width*j的+结合 巧妙实现第1，2比完转
+
+														//此处为核心  每个变量意义搞懂！！！
+
+			if (cmp(num1,num2) > 0)//默认降序  所以改变升降序可以通过回调函数减号两边参数位置改变！
+			{                                                         
+
+				Swap(num1,num2,width);          //整洁  交换部分拉出去新函数实现!
+
+			}
+		}
+	}
+}
+
+
+
+
+
+//=======================================================回调制定规则函数 制定区===================================
+typedef struct Stu {
+	char name[4];
+	int age;
+
+}Stu;
+
+int Cmp_Stu_name(const void *a,const void *b)
+{
+	return strcmp(((Stu*)a)->name,((Stu*)b)->name);
+
+
+}
+//这两个情况最复杂！！
+    
+//用结 构体中的name（str）来对结构体数组中的元素排序
+int Cmp_Stu_age(const void* a, const void* b)
+{
+	//return *(int*)a - *(int*)b;
+	return ((Stu*)a)->age - ((Stu*)b)->age;
+
+
+}
+//用结构体中的age（int）来对结构体数组中的元素排序
+
+int Cmp_int(const void* a,const void* b)
+{
+	return *(int*)a - *(int*)b;
+}
+//用数组中的 int 来对结构体数组中的元素排序
+
+int Cmp_char(const void* a, const void* b)
+{
+	return strcmp((char*)a, (char*)b);
+
+}
+//用数组中的 字符串 来对结构体数组中的元素排序
+
+int main()
+{
+	int i = 0;
+	
+	int ch[] = {'d','c','a','b'};
+	
+	int sz = sizeof(ch) /sizeof(ch[0]);
+
+	for (i = 0; i < sz; i++)
+	{
+		printf("%c ", ch[i]);
+	}
+	printf("\n");//打印排序前的数组！
+
+	//qsort(ch, sz, sizeof(ch[0]), Cmp_char);
+
+	bubble_sort(ch,sz,sizeof(ch[0]),Cmp_char);
+	//调用自己的冒泡psort！
+	for (i = 0; i < sz; i++)
+	{
+		printf("%c ",ch[i]);
+		
+	}
+	printf("\n");//打印排序后的数组！
+	
+	return 0;
+}
+
+
