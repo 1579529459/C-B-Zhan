@@ -38,7 +38,7 @@ int main()
 {
 
 	char arr[256] = { 0 };
-	scanf("%s", &arr);
+	scanf("%s", &arr);	// 此处如果遇到 ‘ ’or enter则终止输入了  eg  hello world == 'hello '    scanf("%s",&a)改为 gets(a) 即可
 	reverse(arr);
 
 	printf("%s\n", arr);
