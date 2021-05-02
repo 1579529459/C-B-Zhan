@@ -1,0 +1,45 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+
+void reverse(char* arr)
+{
+
+	int tem, i = 0, count = 0;  
+  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======
+	while (arr[i])
+	{
+		count++;                                  此处实现计算字符串大小的函数  strlen()，明明可以引头文件string.h用的
+		i++;
+
+	}
+   =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  =======  ======= 
+  
+	int j = count - 1;
+	i = 0;
+
+
+	while (i <= j)
+	{
+		tem = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tem;
+		i++;
+		j--;
+		
+
+	}
+	
+
+
+}
+
+
+int main()
+{
+
+	char arr[256] = { 0 };
+	scanf("%s", &arr);
+	reverse(arr);
+
+	printf("%s\n", arr);
+}
