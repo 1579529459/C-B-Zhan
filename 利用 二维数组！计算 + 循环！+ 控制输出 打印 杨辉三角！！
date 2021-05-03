@@ -1,0 +1,50 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+
+
+
+int main()
+{
+	int line;
+	int i = 0;
+	int j = 0;
+	int arr[20][20] = { 0 };
+	printf("输入杨辉三角的行数(0到20内):> ");
+	scanf("%d",&line);
+	printf("\n");
+	
+	//初始化整体数组 大小(20*20) + 计算杨辉三角内部部分！
+	for (i = 0; i < 20; i++)
+	{
+		for (j = 0; j <20; j++)
+		{	//此处使三角的第一列 和 对角线全弄为1(杨辉三角)
+			arr[i][0] = 1;
+			arr[i][i] = 1;
+			
+			//此处为其中空出的0 用上面和上面前一列的加和计算(杨辉三角)
+			if (i >= 2 && j >= 1&&j<=i-1)
+			{
+				arr[i][j] = arr[i - 1][j] + arr[i - 1][j - 1];
+			}
+		}
+	}
+
+	//打印部分 （分为" "和三角 两部分）
+
+	for (i = 0; i < line; i++)
+	{	//打印空格
+		for (j = line-1-i; j>0; j--)
+		{
+			printf(" ");
+		}
+		//打印三角
+		for (j = 0; j <=i; j++)
+		{
+			printf("%d ", arr[i][j]);
+			
+		}
+		printf("\n");
+	}
+	printf("\n");
+	return 0;
+}
