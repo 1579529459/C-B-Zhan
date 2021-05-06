@@ -77,7 +77,11 @@ char* my_strstr(const char*p1, const char* p2)
 			s1++;
 			s2++;
 		}
+		if (*s2 == '\0')
+		return tem;
 		
+		if(*s1=='\0')
+		return NUILL;     //如果p1太短了  则提前终止， 找不到  所以进一步优化的。。
 		
 		tem++;
 		
