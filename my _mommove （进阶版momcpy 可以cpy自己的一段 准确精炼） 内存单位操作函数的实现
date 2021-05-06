@@ -1,0 +1,39 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<assert.h>
+#include<ctype.h>
+
+
+void* my_memcpy(void* dest, const void* src, size_t count)
+{
+	void* tem = dest;
+	while (count--)
+	{
+		if (dest < src) //为了不使拷贝时覆盖原值的影响 分为前 ——》后
+		{                               // 分为 后——》前两种拷贝方式
+			*(char*)dest = *(char*)src;
+			++(char*)dest;
+			++(char*)src;
+		}
+		else if (dest >=src)  //从后向前拷贝！			
+		{
+			*((char*)dest+count)= *((char*)src+count);
+			//注意这里+count  实质是count-1 因为while里count--过一次了 所以这样
+			// 因为  内存十六进制储存形式有关  得画出内存表图才清晰为啥 *首+count-1
+			
+		}
+		
+	}
+	return tem;
+}
+
+int main()
+
+{
+	int arr []= { 1,2,3,4,5,6,7,8,9,10 };
+	int arr2 []= { 0 };
+
+	memcpy(arr, arr+2, 20);
+	
+	return 0;
+}
