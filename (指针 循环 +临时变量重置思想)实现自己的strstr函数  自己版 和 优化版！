@@ -1,0 +1,96 @@
+==================================================================自己版本！ 不精简  有冗余！
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<assert.h>
+
+char* my_strstr(const char*p1, const char* p2)
+{
+	char* s1 = p1;
+	char* s2 = p2;
+	char* tem;
+	assert(p1 != NULL);
+	assert(p2 != NULL);
+	if (*s2 == '\0')
+	{
+		return p1;
+	}
+	while (*s1)
+	{
+		tem = s1;
+		while ((*s1 == *s2)&&(*s1 != '\0') && (*s2 != '\0'))
+		{
+			
+			s1++;
+			s2++;
+		}
+		
+		if (*s2 ==*s1&&*s1== '\0')
+		{
+			return tem;
+		}
+		else if (*s1 == '\0')
+		{
+			return NULL;
+		}
+		s1 = ++tem;
+		s2 = p2;
+	}
+	return NULL;
+}
+===========================================================================================
+int main()
+
+{
+	char* p1 = "d";
+	char* p2 = "def";
+	char* ret = my_strstr(p1,p2);
+	printf("%s\n",ret);
+	return 0;
+}
+
+
+
+
+--------------------------------------------------------官方版本   精简优化----------------------------
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<assert.h>
+
+char* my_strstr(const char*p1, const char* p2)
+{
+	char* s1 = NULL;
+	char* s2 = NULL;
+	char* tem = p1;
+	assert(p1 != NULL);
+	assert(p2 != NULL);
+	if (*p2 == '\0')
+	{
+		return (char*)p1;
+	}
+	while (*tem)
+	{
+		s1 = tem;   //tem出事就存入p1地址 当作起始地址   进循环传给s1进行操作 若不满足 tem++ 则位置后一个 再给s1操作
+		s2 = p2;    //若不满足 则s2会被重置到所查字符串p2的开始位置  从新查找
+		while ((*s1 == *s2)&&(*s1 != '\0') && (*s2 != '\0'))
+		{
+			
+			s1++;
+			s2++;
+		}
+		
+		
+		tem++;
+		
+	}
+	return NULL;
+}
+
+int main()
+
+{
+	char* p1 = "ef";
+	char* p2 = "def";
+	char* ret = my_strstr(p1,p2);
+	printf("%s\n",ret);
+	return 0;
+}
