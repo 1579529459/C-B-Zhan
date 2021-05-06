@@ -3,6 +3,7 @@
 #include<assert.h>
 #include<ctype.h>
 
+注意 内存函数操作的都是以字节为单位的  类似于 char*  所以在对int数组之类的操作 需要注意整型 4字节决定一个数的问题  （有可能四个字节都给1并不是1，1，1，1，而是0x01010101 一个很大的书数了！！！）
 
 void* my_memcpy(void* dest, const void* src, size_t count)
 {
