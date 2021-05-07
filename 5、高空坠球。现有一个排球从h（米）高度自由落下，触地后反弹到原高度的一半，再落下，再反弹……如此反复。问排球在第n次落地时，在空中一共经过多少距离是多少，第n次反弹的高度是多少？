@@ -1,0 +1,26 @@
+过程量参与另一个所求值的运算 因此得循环中保留
+
+画图的重要性  找出所求量之间的关系  套进循环不断尝试调试！！ 坚持不懈 库函数的运用 灵活思维
+
+
+#define _CRT_SECURE_NO_WARNINGS 1
+# include<stdio.h>
+# include<math.h>
+int main()
+{
+	int h,i,n;
+	double sum = 0, h2 = 0;
+	printf("请输入初始高度和下落次数>:");
+	scanf("%d %d", &h, &n);
+	sum = h;
+	for (i = 1; i <= n; i++)
+	{
+		
+		sum += h2 * 2;
+		h2 = h / pow(2, i);   //此处可以多个j 不引用pow()效率更高！
+			
+	}
+	
+	printf("%f %f", sum, h2);
+	return 0;
+}
