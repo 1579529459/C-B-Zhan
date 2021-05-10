@@ -2,14 +2,16 @@
 ====================================================================contact.h==============头文件 声明 预处理部分   ===============================================
 ====================================================================contact.h=====================================================================================
 
-#define MAX 1000
-
+//#define MAX 1000
+#define DEFAULT_SZ 3
+#define _CRT_SECURE_NO_WARNINGS 1
 #define MAX_NAME 20
 #define MAX_SEX 5
 #define MAX_TELE 12
 #define MAX_ADDR 30
 #include<stdio.h>
 #include<string.h>
+#include<stdlib.h> 
 
 enum Option
 {
@@ -32,23 +34,28 @@ struct Peoinfo//一个人的信息模板
 };
 struct Contact
 {
-	struct Peoinfo data[MAX];//存放一个信息
+	//存放一个信息
 	int size;//记录当前已有元素的个数;
+	int capacity; //当前通讯录最大容量  用做动态开辟 if它《=size  则动态扩容！
+	struct Peoinfo data[];
 };
 
 
-void InitContact(struct Contact*); //初始化通讯录的函数;
+struct Contact* InitContact(struct Contact*); //初始化通讯录的函数;
 void AddContact(struct Contact*);//增
 void ShowContact(const struct Contact*);//因为只show 所以不改变 前加const
 void SearchContact(const struct Contact*);//查; （指定!的人的信息）默认用name卡 
 void DelContact(struct Contact*);//删（删!指定!的人的信息）默认用name卡 注意 不是简单的换0，算法-》 first：把删除位置的人跟最后一个人交换 second：然后size--！！！才能达到模拟通讯录的效果阿！
 void ModifyContact(struct Contact*); //修改（修改!指定!的人的信息）
-void SortContact(struct Contact* ps);
+void SortContact(struct Contact*);
+void DestroyContact(struct Contact*); //销毁并释放内存！
+
 
 ====================================================================contact.c=====================================================================================
 ====================================================================contact.c=======================核心函数设计部分 ===============================================
 ====================================================================contact.c=====================================================================================
-#define _CRT_SECURE_NO_WARNINGS 1
+
+
 #include "contact.h"
 
 static int FindByName(struct Contact* ps, char name[MAX_NAME])
@@ -70,12 +77,41 @@ static int FindByName(struct Contact* ps, char name[MAX_NAME])
 }
 //它只是支撑增删查改一系列函数实现的一个包  藏到当前文件下  test里也没出现  没必要在,h里声明了！
 //不管是找 改 还是删 都默认名字卡 则进入他们内部的 first步骤 都是名字卡出size位置 for循环+i break出来	 woc 所以再构造一个name卡位置的函数  直接无敌起飞！									//或者 用复杂的  删除位置之后的人一个一个往前覆盖1位 size--;这样链表顺序不会被打乱但是复杂
+const void CheckCapacity(struct Contact* ps)
+{
+	if (ps->size == ps->capacity)
+	{
+		//满了增容
+		struct Contact* ptr = (struct Contact*)realloc(ps, ps->capacity + 2 * sizeof(struct Peoinfo));
+		
+		if (ptr != NULL)
+		{
+			ps= ptr;	
+			ps->capacity += 2;//增容了容量当然也加了！
+			printf("增容成功!\n");
+		}
 
-void InitContact(struct Contact* ps)
+		else 
+		{
+			printf("增容失败\n");
+		}
+		
+	}
+}
+//满了扩容 不满啥事不干 
+struct Contact* InitContact(struct Contact* ps)
 {
 
-	memset(ps->data, 0, sizeof(ps->data));
-	ps->size = 0;//设置通讯录一开始就0个元素;
+	ps = (struct Contact*)malloc(8+DEFAULT_SZ * sizeof(struct Peoinfo)); // 3个{} 每个{}有大小为一套name age addr 等信息
+	if (ps == NULL)
+
+	{
+		return 0;
+	}
+
+	ps->size = 0;//设置通讯录一开始储存了0个用户信息; 
+	ps->capacity = DEFAULT_SZ;//初始容量 为 DEFAULT_SZ = 3;
+	return ps;
 }
 
 void ShowContact(const struct Contact* ps) //展示
@@ -99,30 +135,30 @@ void ShowContact(const struct Contact* ps) //展示
 
 void AddContact(struct Contact* ps) //增
 {
-	if (ps->size == MAX)
-	{
-		printf("通讯录已经满了！无法继续增加了\n");
-	}
-	else
-	{
-		printf("请输入姓名:> ");
-		scanf("%s", ps->data[ps->size].name);
-   // 此处找到 data数组 的插入位置！相当于 data[size] -》(一个包含一套name,age,sex信息的姐沟通i)，最后.name对其加入name
-		printf("请输入年龄:> ");
-		scanf("%d",&(ps->data[ps->size].age));  // name , age ,sex..都是变量名 除了age 其余都是数组变量名 可以当首地址用的！
-		//注意这里 因为age是一个int 不是数组（数组名可以当首地址），所以这个age整体需要加&
-		printf("请输入性别:> ");
-		scanf("%s", ps->data[ps->size].sex);
-		printf("请输入电话:> ");
-		scanf("%s", ps->data[ps->size].tele);
-		printf("请输入地址:> ");
-		scanf("%s", ps->data[ps->size].addr);
 
-		printf("添加成功!\n")
-			;
-		ps->size++; //！别忘了！加完第size个元素后 size值加一  为下一组元素做准备了
-	}
-} 
+	CheckCapacity(ps); //检测当前通讯录的容量！ 风住哪个起来 后面还要用
+							//满了-> 增容->跳过（加数据） ; 没满 跳过（加数据）
+ 
+	//{
+	printf("请输入姓名:> ");
+	scanf("%s", ps->data[ps->size].name);
+   // 此处找到 data数组 的插入位置！相当于 data[size] -》(一个包含一套name,age,sex信息的姐沟通i)，最后.name对其加入name
+	printf("请输入年龄:> ");
+	scanf("%d",&(ps->data[ps->size].age));  // name , age ,sex..都是变量名 除了age 其余都是数组变量名 可以当首地址用的！
+		//注意这里 因为age是一个int 不是数组（数组名可以当首地址），所以这个age整体需要加&
+	printf("请输入性别:> ");
+	scanf("%s", ps->data[ps->size].sex);
+	printf("请输入电话:> ");
+	scanf("%s", ps->data[ps->size].tele);
+	printf("请输入地址:> ");
+	scanf("%s", ps->data[ps->size].addr);
+
+	printf("添加成功!\n");
+			
+	ps->size++; //！别忘了！加完第size个元素后 size值加一  为下一组元素做准备了
+}
+
+
 
 
 void DelContact(struct Contact* ps) //删
@@ -138,7 +174,7 @@ void DelContact(struct Contact* ps) //删
 	}
 	//2."删除" i处后面的人全部往前挪一位  再size--
 	else
-	{
+	{  
 		for (pos; pos < ps->size - 1; pos++) //注意这个sizse - 1 细品 （数组最后一个元素下表是size-1！）
 		{
 			ps->data[pos] = ps->data[pos + 1];
@@ -202,7 +238,7 @@ void ModifyContact(struct Contact* ps) //修改 --》本质 （重新录一边�
 }
 
 void SortContact(struct Contact* ps)
-{
+{	
 	int i = 0,x=0; int j = 0;
 	for (i = 0; i < ps->size-1; i++)//冒泡思想
 	{
@@ -227,11 +263,25 @@ void SortContact(struct Contact* ps)
 
 }
 
+
+
+void DestroyContact(struct Contact* ps)
+{
+	free(ps);
+	ps= NULL;
+	
+	printf("销毁成功！");
+
+
+}
+}
+
+
 ====================================================================test.c=====================================================================================
 ====================================================================test.c=======================基础选择框架部分 ===============================================
 ====================================================================test.c=====================================================================================
 
-#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "contact.h"
 
 void menu()
@@ -255,7 +305,7 @@ int main()
 	//创建个通讯录（人名 电话 住址等信息的结构体数组）struct=-=
 	struct Contact con; //	则con 是通讯录 里包含了1000个元素的数组！和！size 个数
 	//初始化通讯录
-	InitContact(&con);
+	struct Contact* ps=InitContact(&con);
 
 	do
 	{
@@ -267,25 +317,27 @@ int main()
 		{
 		case ADD:   //CASE后的变量明其实是一个enum （一个对应的数字！）
 					//不再是case1，2，3，，，增强语义性了！
-			AddContact(&con);//增
+			AddContact(ps);//增
 			break;
 		case DEL:
-			DelContact(&con);
+			DelContact(ps);//删
 			break;
 		case SEARCH:
-			SearchContact(&con);
+			SearchContact(ps);//查
 			break;
 		case MODIFY:
-			ModifyContact	(&con);
+			ModifyContact	(ps);
 			break;
 		case SHOW:
-			ShowContact(&con);
+			ShowContact(ps);
 			break;
 		case SORT:
-			SortContact(&con);
+			SortContact(ps);
 			break;
-		case 0:
-			printf("退出通讯录!\n");
+		case EXIT:
+			//推出 则 销毁通讯录（把它占用的内存释放 malloc 和 free成对出现！以后数据都在库里 所以不用怕丢失  再次打开的时候读写就行）
+			DestroyContact(ps);
+			printf("推出通讯录!\n");
 			break;
 		default:
 			printf("选择错误!\n");
@@ -296,6 +348,9 @@ int main()
 	} while(input);
 
 	return 0;
+
+}
+
 
 }
 
