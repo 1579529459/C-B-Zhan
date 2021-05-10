@@ -17,7 +17,7 @@ char* my_strstr(const char*p1, const char* p2)
 	while (*s1)
 	{
 		tem = s1;
-		while ((*s1 == *s2)&&(*s1 != '\0') && (*s2 != '\0'))
+		while ((*s1 == *s2)&&(*s1 != '\0') && (*s2 != '\0'))‘
 		{
 			
 			s1++;
