@@ -1,7 +1,6 @@
 ====================================================================contact.h=====================================================================================
 ====================================================================contact.h==============头文件 声明 预处理部分   ===============================================
 ====================================================================contact.h=====================================================================================
-
 //#define MAX 1000
 #define DEFAULT_SZ 3
 #define _CRT_SECURE_NO_WARNINGS 1
@@ -12,7 +11,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h> 
-
+#include<errno.h> 
 enum Option
 {
 	EXIT,
@@ -21,7 +20,8 @@ enum Option
 	SEARCH,   //此处枚举妙用  将自定义语义强的 名称 为0，1，2，3这些数字结合起来了！在swtich里就直接跟case即可
 	MODIFY,
 	SHOW,
-	SORT
+	SORT,
+	SAVE
 };
 
 struct Peoinfo//一个人的信息模板
@@ -48,8 +48,10 @@ void SearchContact(const struct Contact*);//查; （指定!的人的信息）默
 void DelContact(struct Contact*);//删（删!指定!的人的信息）默认用name卡 注意 不是简单的换0，算法-》 first：把删除位置的人跟最后一个人交换 second：然后size--！！！才能达到模拟通讯录的效果阿！
 void ModifyContact(struct Contact*); //修改（修改!指定!的人的信息）
 void SortContact(struct Contact*);
-void DestroyContact(struct Contact*); //销毁并释放内存！
+void DestroyContact(); //销毁并释放内存！
+void SaveContact(struct Contact*);//保存文件 到文档！	
 
+void LoadContact(struct Contact*);//加载文件信息到通讯录!	
 
 ====================================================================contact.c=====================================================================================
 ====================================================================contact.c=======================核心函数设计部分 ===============================================
@@ -77,12 +79,12 @@ static int FindByName(struct Contact* ps, char name[MAX_NAME])
 }
 //它只是支撑增删查改一系列函数实现的一个包  藏到当前文件下  test里也没出现  没必要在,h里声明了！
 //不管是找 改 还是删 都默认名字卡 则进入他们内部的 first步骤 都是名字卡出size位置 for循环+i break出来	 woc 所以再构造一个name卡位置的函数  直接无敌起飞！									//或者 用复杂的  删除位置之后的人一个一个往前覆盖1位 size--;这样链表顺序不会被打乱但是复杂
-const void CheckCapacity(struct Contact* ps)
+static void CheckCapacity(struct Contact* ps)
 {
 	if (ps->size == ps->capacity)
 	{
 		//满了增容
-		struct Contact* ptr = (struct Contact*)realloc(ps, ps->capacity + 2 * sizeof(struct Peoinfo));
+		struct Contact* ptr = (struct Contact*)realloc(ps, (ps->capacity + 2) * sizeof(struct Peoinfo));
 		
 		if (ptr != NULL)
 		{
@@ -108,10 +110,38 @@ struct Contact* InitContact(struct Contact* ps)
 	{
 		return 0;
 	}
-
 	ps->size = 0;//设置通讯录一开始储存了0个用户信息; 
 	ps->capacity = DEFAULT_SZ;//初始容量 为 DEFAULT_SZ = 3;
+
+	//空间搞定以后 把之前存如文件的人信息 也搞到其中 （完美模拟通讯录管理！） nb
+	LoadContact(ps);
+
 	return ps;
+}
+
+void LoadContact(struct Contact* ps)
+{ 
+	struct Peoinfo tem = {0};  
+	FILE* pfRead = fopen("contact.txt", "rb");
+	if (pfRead == NULL) //文件打开失败的情况
+	{
+		printf("LoadContact: %s\n", strerror(errno));
+		return;
+	}
+	//读取文件 放到当前程序通讯录储存;
+	while (fread(&tem, sizeof(struct Peoinfo), 1, pfRead)) //每次读文件中的一个！若读取的元素小于给定（1） 返回实际元素个数 则0 跳出
+	{
+		CheckCapacity; //检查下容量 ok 嘛 666
+		ps->data[ps->size] =tem;// 文件写入 类似add
+		ps->size++;
+	}
+
+	fclose(pfRead);
+	pfRead = NULL;
+	
+
+	
+
 }
 
 void ShowContact(const struct Contact* ps) //展示
@@ -270,16 +300,47 @@ void DestroyContact(struct Contact* ps)
 	free(ps);
 	ps= NULL;
 	
-	printf("销毁成功！");
+	printf("销毁成功！\n");
 
 
 }
-}
 
+void SaveContact(struct Contact* ps)
+{
+
+	FILE* pfWrite = fopen("contact.txt", "wb");
+	if (pfWrite == NULL) //文件打开失败的情况
+	{
+		printf("SaveContact:%s\n",strerror(errno));
+		return ;
+	}
+	//char op[1024];
+	//sprintf(op, "%8s%8s%8s%8s%8s", "姓名", "年龄", "性别", "电话", "地址");
+	//fputs(strcat(op, "\n"), pfWrite);
+	//
+	//int i = 0;
+	//char p[1024];
+	//for (i = 0; i < ps->size; i++)
+	//{
+	//	sprintf(p,"%8s%8d%8s%8s%8s",ps->data[i].name, ps->data[i].age, ps->data[i].sex, ps->data[i].tele, ps->data[i].addr);
+	//	fputs(strcat(p,"\n"),pfWrite);
+
+	//} 
+	int i = 0;
+	for (i = 0; i < ps->size; i++)
+	{
+		fwrite(&(ps->data[i]), sizeof(struct Peoinfo), 1, pfWrite);
+	}
+
+	fclose(pfWrite);//关文件 置空;
+	pfWrite = NULL;
+	printf("保存成功\n");
+}
 
 ====================================================================test.c=====================================================================================
 ====================================================================test.c=======================基础选择框架部分 ===============================================
 ====================================================================test.c=====================================================================================
+
 
 
 #include "contact.h"
@@ -291,7 +352,7 @@ void menu()
 	printf("**** 1->add       2->del    *****\n");
 	printf("**** 3->search    4->modify *****\n");
 	printf("**** 5->show      6->sort   *****\n");
-	printf("**** 0->exit                *****\n");
+	printf("**** 7->save      0->exit   *****\n");
 	printf("*********************************\n");
 	
 
@@ -335,9 +396,14 @@ int main()
 			SortContact(ps);
 			break;
 		case EXIT:
-			//推出 则 销毁通讯录（把它占用的内存释放 malloc 和 free成对出现！以后数据都在库里 所以不用怕丢失  再次打开的时候读写就行）
+			//退出 则 销毁通讯录（把它占用的内存释放 malloc 和 free成对出现！以后数据都在库里 所以不用怕丢失  再次打开的时候读写就行）
+			SaveContact(ps);//防止忘记save就退出哈哈
 			DestroyContact(ps);
+			
 			printf("推出通讯录!\n");
+			break;
+		case SAVE:
+			SaveContact(ps);
 			break;
 		default:
 			printf("选择错误!\n");
@@ -350,7 +416,3 @@ int main()
 	return 0;
 
 }
-
-
-}
-
