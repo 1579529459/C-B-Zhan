@@ -51,11 +51,12 @@ void SortContact(struct Contact*);
 void DestroyContact(); //销毁并释放内存！
 void SaveContact(struct Contact*);//保存文件 到文档！	
 
-void LoadContact(struct Contact*);//加载文件信息到通讯录!	
+struct Contact* LoadContact(struct Contact*);//加载文件信息到通讯录!	
 
 ====================================================================contact.c=====================================================================================
 ====================================================================contact.c=======================核心函数设计部分 ===============================================
 ====================================================================contact.c=====================================================================================
+
 
 
 #include "contact.h"
@@ -79,19 +80,47 @@ static int FindByName(struct Contact* ps, char name[MAX_NAME])
 }
 //它只是支撑增删查改一系列函数实现的一个包  藏到当前文件下  test里也没出现  没必要在,h里声明了！
 //不管是找 改 还是删 都默认名字卡 则进入他们内部的 first步骤 都是名字卡出size位置 for循环+i break出来	 woc 所以再构造一个name卡位置的函数  直接无敌起飞！									//或者 用复杂的  删除位置之后的人一个一个往前覆盖1位 size--;这样链表顺序不会被打乱但是复杂
-static void CheckCapacity(struct Contact* ps)
+struct Contact* CheckCapacity(struct Contact* ps)
 {
+	int i = 0;
 	if (ps->size == ps->capacity)
 	{
 		//满了增容
-		struct Contact* ptr = (struct Contact*)realloc(ps, (ps->capacity + 2) * sizeof(struct Peoinfo));
+		struct Contact* ptr = (struct Contact*)realloc(ps, 8+(ps->capacity + 2) * sizeof(struct Peoinfo));
 		
 		if (ptr != NULL)
 		{
-			ps= ptr;	
-			ps->capacity += 2;//增容了容量当然也加了！
-			printf("增容成功!\n");
+			if (ptr != ps)
+			{
+				for (i = 0; i < ps->size; i++)
+				{
+					ptr->data[i] = ps->data[i];
+				}
+
+				ps = ptr;
+				*(&(ps->capacity)) += 2;//增容了容量当然也加了！
+				printf("增容成功!\n");
+				return ps;
+			}
+			else if (ptr == ps)
+			{
+				ps = ptr;
+				*(&(ps->capacity)) += 2;//增容了容量当然也加了！
+				printf("增容成功!\n");
+				return ps;
+			}
+			//ps = ps;
+			//for (i = 0; i < ps->size; i++)
+			//{
+			//	ptr->data[i] = ps->data[i];
+			//}
+			//
+			//ps = ptr;	
+			//*(&(ps->capacity)) += 2;//增容了容量当然也加了！
+			//printf("增容成功!\n");
+			//return ps;
 		}
+		
 
 		else 
 		{
@@ -114,12 +143,12 @@ struct Contact* InitContact(struct Contact* ps)
 	ps->capacity = DEFAULT_SZ;//初始容量 为 DEFAULT_SZ = 3;
 
 	//空间搞定以后 把之前存如文件的人信息 也搞到其中 （完美模拟通讯录管理！） nb
-	LoadContact(ps);
+	ps=LoadContact(ps);
 
 	return ps;
 }
 
-void LoadContact(struct Contact* ps)
+struct Contact* LoadContact(struct Contact* ps)
 { 
 	struct Peoinfo tem = {0};  
 	FILE* pfRead = fopen("contact.txt", "rb");
@@ -131,15 +160,14 @@ void LoadContact(struct Contact* ps)
 	//读取文件 放到当前程序通讯录储存;
 	while (fread(&tem, sizeof(struct Peoinfo), 1, pfRead)) //每次读文件中的一个！若读取的元素小于给定（1） 返回实际元素个数 则0 跳出
 	{
-		CheckCapacity; //检查下容量 ok 嘛 666
+		ps=CheckCapacity(ps); //检查下容量 ok 嘛 666
 		ps->data[ps->size] =tem;// 文件写入 类似add
 		ps->size++;
 	}
 
 	fclose(pfRead);
 	pfRead = NULL;
-	
-
+	return ps;
 	
 
 }
@@ -166,9 +194,9 @@ void ShowContact(const struct Contact* ps) //展示
 void AddContact(struct Contact* ps) //增
 {
 
-	CheckCapacity(ps); //检测当前通讯录的容量！ 风住哪个起来 后面还要用
+	ps=CheckCapacity(ps); //检测当前通讯录的容量！ 风住哪个起来 后面还要用
 							//满了-> 增容->跳过（加数据） ; 没满 跳过（加数据）
- 
+	
 	//{
 	printf("请输入姓名:> ");
 	scanf("%s", ps->data[ps->size].name);
@@ -340,6 +368,7 @@ void SaveContact(struct Contact* ps)
 ====================================================================test.c=====================================================================================
 ====================================================================test.c=======================基础选择框架部分 ===============================================
 ====================================================================test.c=====================================================================================
+
 
 
 
