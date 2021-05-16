@@ -10,14 +10,14 @@ void menu()
 
 }
 
-void game()
+void game()a
 
 {
 	int nandu;
 	char mine[ROWS][COLS] = { 0 };
 	//排出雷的信息
 	char show[ROWS][COLS] = { 0 };
-	//初始化
+	//初始化a
 	//InitBoard(mine,ROWS,COLS,'0');
 	
 	nandu=Nandu();
