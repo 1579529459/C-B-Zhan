@@ -1,7 +1,7 @@
 ==================================================================自己版本！ 不精简  有冗余！
 #define _CRT_SECURE_NO_WARNINGS 1
 #include<stdio.h>
-#include<assert.h>
+#include<assert.h>、
 
 char* my_strstr(const char*p1, const char* p2)
 {
