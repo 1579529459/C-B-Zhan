@@ -2,7 +2,7 @@
 #include"game.h"
 
 
-void menu()
+void menu()、
 {
 	printf("==================================\n");
 	printf("=========1.play       0.exit======\n");
