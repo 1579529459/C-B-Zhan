@@ -29,7 +29,7 @@ char* my_strstr(const char*p1, const char* p2)
 			return tem;
 		}
 		else if (*s1 == '\0')
-		{
+		{啊
 			return NULL;
 		}
 		s1 = ++tem;
