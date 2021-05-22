@@ -55,7 +55,7 @@ int main()
 #define _CRT_SECURE_NO_WARNINGS 1
 #include<stdio.h>
 #include<assert.h>
-
+啊
 char* my_strstr(const char*p1, const char* p2)
 {
 	char* s1 = NULL;
@@ -70,31 +70,4 @@ char* my_strstr(const char*p1, const char* p2)
 	while (*tem)
 	{
 		s1 = tem;   //tem出事就存入p1地址 当作起始地址   进循环传给s1进行操作 若不满足 tem++ 则位置后一个 再给s1操作
-		s2 = p2;    //若不满足 则s2会被重置到所查字符串p2的开始位置  从新查找
-		while ((*s1 == *s2)&&(*s1 != '\0') && (*s2 != '\0'))
-		{
-			
-			s1++;
-			s2++;
-		}
-		if (*s2 == '\0')
-		return tem;
-		
-		if(*s1=='\0')
-		return NUILL;     //如果p1太短了  则提前终止， 找不到  所以进一步优化的。。
-		
-		tem++;
-		
-	}
-	return NULL;
-}
-
-int main()
-
-{
-	char* p1 = "ef";
-	char* p2 = "def";
-	char* ret = my_strstr(p1,p2);
-	printf("%s\n",ret);
-	return 0;
-}
+		s2 = p2;    //若不满足 则s2
