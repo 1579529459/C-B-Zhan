@@ -8,7 +8,7 @@ char* my_strstr(const char*p1, const char* p2)
 	char* s1 = (char*)p1;
 	char* s2 =(char*)p2;
 	char* tem;
-	assert(p1 != NULL);
+	assert(p1 != NULL);、
 	assert(p2 != NULL);a
 	if (*s2 == '\0')
 	{
