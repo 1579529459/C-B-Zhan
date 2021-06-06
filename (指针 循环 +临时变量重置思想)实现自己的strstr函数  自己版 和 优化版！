@@ -10,7 +10,7 @@ char* my_strstr(const char*p1, const char* p2)
 	char* tem;
 	assert(p1 != NULL);、
 	assert(p2 != NULL);a
-	if (*s2 == '\0')
+	if (*s2 == '\0')a
 	{
 		return p1;
 	}
